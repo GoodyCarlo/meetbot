@@ -15,6 +15,7 @@ intents.message_content = True  # Ensure this intent is enabled for fetching mes
 bot = commands.Bot(command_prefix='$', intents=intents)
 tree = bot.tree  # Use the bot's command tree
 
+webhooks_cache = {}
 
 async def fetch_message_in_channel(channel: discord.TextChannel, message_id: int) -> discord.Message:
     try:
@@ -22,6 +23,23 @@ async def fetch_message_in_channel(channel: discord.TextChannel, message_id: int
         return message
     except (discord.NotFound, discord.Forbidden):
         return None
+    
+async def get_or_create_webhook(channel):
+    # Check if the webhook is already cached
+    if channel.id in webhooks_cache:
+        return webhooks_cache[channel.id]
+
+    # Get existing webhooks in the channel
+    webhooks = await channel.webhooks()
+    for webhook in webhooks:
+        if webhook.name == "webhook_replacer":
+            webhooks_cache[channel.id] = webhook
+            return webhook
+
+    # Create a new webhook if none found
+    webhook = await channel.create_webhook(name="webhook_replacer")
+    webhooks_cache[channel.id] = webhook
+    return webhook
 
 @bot.event
 async def on_ready():
@@ -68,21 +86,21 @@ async def on_message(ctx:Message):
                 await ctx.delete()
             else:
                 await ctx.reply('Hello!', mention_author=True)
-        
+
         if ctx.content.__contains__('twitter.com') and not ctx.content.__contains__('fxtwitter'):
-            webhook = await ctx.channel.create_webhook(name="gayest")
+            webhook = await get_or_create_webhook(ctx.channel)
             reply = ctx.content.replace("twitter","fxtwitter")
             await webhook.send(reply,username=ctx.author.name,avatar_url=ctx.author.avatar.url)
             await ctx.delete()
 
         if ctx.content.__contains__('x.com') and not ctx.content.__contains__('fxtwitter'):
-            webhook = await ctx.channel.create_webhook(name="gayest")
+            webhook = await get_or_create_webhook(ctx.channel)
             reply = ctx.content.replace("x","fxtwitter")
-            await webhook.send(reply,username=ctx.author.name,avatar_url=ctx.author.avatar.url)
+            await webhook.send(reply,username=ctx.author.nick,avatar_url=ctx.author.avatar.url)
             await ctx.delete()
 
         if ctx.content.__contains__('instagram.com') and not ctx.content.__contains__('ddinstagram'):
-            webhook = await ctx.channel.create_webhook(name="gayer")
+            webhook = await get_or_create_webhook(ctx.channel)
             reply = ctx.content.replace("instagram","ddinstagram")
             await webhook.send(reply,username=ctx.author.name,avatar_url=ctx.author.avatar.url)
             await ctx.delete()
