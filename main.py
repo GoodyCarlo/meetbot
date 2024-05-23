@@ -4,6 +4,7 @@ from discord.ext import commands
 import os
 from os.path import join, dirname
 from dotenv import load_dotenv
+import random
 
 dotenv_path = join(dirname(__file__), '.env')
 load_dotenv(dotenv_path)
@@ -86,6 +87,13 @@ async def on_message(ctx:Message):
             await ctx.delete()
         else:
             await ctx.reply('Hello!', mention_author=True)
+    
+    if ctx.content.startswith('$bo'):
+        # Sends a random bo angle to wherever `$bo` was sent
+        replies = ['Bo Ang', 'Bo Logo', 'Bo Lok']
+        reply = random.choice(replies)
+        await ctx.delete()
+        await ctx.channel.send(content=reply)
 
     if ctx.content.__contains__('twitter.com') and not ctx.content.__contains__('fxtwitter'):
         webhook = await get_or_create_webhook(ctx.channel)
