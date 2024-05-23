@@ -88,12 +88,14 @@ async def on_message(ctx:Message):
         else:
             await ctx.reply('Hello!', mention_author=True)
     
-    if ctx.content.startswith('$bo'):
+    if ctx.content.__contains__('$bo') and not ctx.content.__contains__('`$bo`'):
         # Sends a random bo angle to wherever `$bo` was sent
         replies = ['Bo Ang', 'Bo Logo', 'Bo Lok']
-        reply = random.choice(replies)
+        random_reply = random.choice(replies)
+        content = ctx.content.replace("$bo", random_reply)
+        
         await ctx.delete()
-        await ctx.channel.send(content=reply)
+        await ctx.channel.send(content=content)
 
     if ctx.content.__contains__('twitter.com') and not ctx.content.__contains__('fxtwitter'):
         webhook = await get_or_create_webhook(ctx.channel)
@@ -113,4 +115,4 @@ async def on_message(ctx:Message):
         await webhook.send(reply,username=ctx.author.name,avatar_url=ctx.author.avatar.url)
         await ctx.delete()
 
-bot.run(TOKEN)
+bot.run("MTI0MzE5ODcyOTgwMTA0NDA3Mg.GzOFx7.RqoI8aeWkpjJg-oz_q69WhoSrYjKk_9fpYi9oE")
