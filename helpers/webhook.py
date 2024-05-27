@@ -9,6 +9,7 @@ async def get_or_create_webhook(channel, webhooks_cache, bot):
     # Get existing webhooks in the channel
     webhooks = await channel.webhooks()
     webhook:Webhook
+    
     for webhook in webhooks:
         if webhook.name == "webhook_replacer" and webhook.user == bot:
             webhooks_cache[channel.id] = webhook
@@ -17,6 +18,7 @@ async def get_or_create_webhook(channel, webhooks_cache, bot):
     # Create a new webhook if none found
     webhook = await channel.create_webhook(name="webhook_replacer")
     webhooks_cache[channel.id] = webhook
+    
     return webhook
 
 async def send_webhook_message(bot, message: Message, content: str, webhooks_cache: dict):
@@ -30,5 +32,6 @@ async def send_webhook_message(bot, message: Message, content: str, webhooks_cac
     """
     
     webhook = await get_or_create_webhook(message.channel, webhooks_cache, bot)
+    
     await message.delete()
     await webhook.send(content, username=message.author.name, avatar_url=message.author.avatar.url)
