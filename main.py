@@ -1,12 +1,10 @@
 import discord
-from discord import app_commands, Interaction, Message, utils, Webhook
-from discord.ext import commands
 import os
-from os.path import join, dirname
-from dotenv import load_dotenv, find_dotenv
-import random
-from cogs.shitpost import Shitpost
 import asyncio
+
+from discord.ext import commands
+from dotenv import load_dotenv, find_dotenv
+
 dotenv_path = find_dotenv()
 load_dotenv(dotenv_path)
 

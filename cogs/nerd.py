@@ -1,12 +1,7 @@
-import discord
-from discord import app_commands, Interaction, Message, utils, Webhook
+from discord import Message
 from discord.ext import commands
-import os
-from os.path import join, dirname
-from dotenv import load_dotenv, find_dotenv
-import random
 
-from helpers.webhook import get_or_create_webhook
+
 class Nerd(commands.Cog):
 
     def __init__(self, bot):

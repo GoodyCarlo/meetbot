@@ -1,12 +1,10 @@
-import discord
-from discord import app_commands, Interaction, Message, utils, Webhook
-from discord.ext import commands
-import os
-from os.path import join, dirname
-from dotenv import load_dotenv, find_dotenv
 import random
 
-from helpers.webhook import get_or_create_webhook
+from discord import Message
+from discord.ext import commands
+from helpers.webhook import send_webhook_message
+
+
 class Bo(commands.Cog):
 
     def __init__(self, bot):
@@ -24,10 +22,12 @@ class Bo(commands.Cog):
             replies = ['Bo Ang', 'Bo Logo', 'Bo Lok', 'Bo Gok']
             random_reply = random.choice(replies)
             content = ctx.content.replace("$bo", random_reply)
-            webhook = await get_or_create_webhook(ctx.channel, self.webhooks_cache, self.bot)
-            await ctx.delete()
-            await webhook.send(content,username=ctx.author.name,avatar_url=ctx.author.avatar.url)
-            # await ctx.channel.send(content=content)
+            
+            await send_webhook_message(
+                bot=self.bot, message=ctx, 
+                content=content, 
+                webhooks_cache=self.webhooks_cache
+            )
 
 async def setup(bot):
     await bot.add_cog(Bo(bot))
