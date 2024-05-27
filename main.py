@@ -1,11 +1,12 @@
 import discord
-from discord import app_commands, Interaction, Message, utils
+from discord import app_commands, Interaction, Message, utils, Webhook
 from discord.ext import commands
 import os
 from os.path import join, dirname
-from dotenv import load_dotenv
+from dotenv import load_dotenv, find_dotenv
+import random
 
-dotenv_path = join(dirname(__file__), '.env')
+dotenv_path = join(find_dotenv())
 load_dotenv(dotenv_path)
 
 TOKEN = os.environ.get("TOKEN")
@@ -31,8 +32,9 @@ async def get_or_create_webhook(channel):
 
     # Get existing webhooks in the channel
     webhooks = await channel.webhooks()
+    webhook:Webhook
     for webhook in webhooks:
-        if webhook.name == "webhook_replacer":
+        if webhook.name == "webhook_replacer" and webhook.user == bot:
             webhooks_cache[channel.id] = webhook
             return webhook
 
@@ -72,37 +74,47 @@ async def first_command(interaction: Interaction, msg: str = None):
 
 @bot.event
 async def on_message(ctx:Message):
-        # we do not want the bot to reply to itself
-        if ctx.author.bot:
-            return
-        
-        if ctx.content.startswith('$nerd'):
-            if ctx.reference != None:
-                message = await fetch_message_in_channel(ctx.channel,ctx.reference.message_id)
-                # webhook = await message.channel.create_webhook(name="gay")
+    # we do not want the bot to reply to itself
+    if ctx.author.bot:
+        return
+    
+    if ctx.content.startswith('$nerd'):
+        if ctx.reference != None:
+            message = await fetch_message_in_channel(ctx.channel,ctx.reference.message_id)
+            # webhook = await message.channel.create_webhook(name="gay")
 
-                # ret = await webhook.send("🤓 ☝️",username=ctx.author.name,avatar_url=ctx.author.avatar.url,wait=True)
-                await message.reply("🤓 ☝️", mention_author=False)
-                await ctx.delete()
-            else:
-                await ctx.reply('Hello!', mention_author=True)
-
-        if ctx.content.__contains__('twitter.com') and not ctx.content.__contains__('fxtwitter'):
-            webhook = await get_or_create_webhook(ctx.channel)
-            reply = ctx.content.replace("twitter","fxtwitter")
-            await webhook.send(reply,username=ctx.author.name,avatar_url=ctx.author.avatar.url)
+            # ret = await webhook.send("🤓 ☝️",username=ctx.author.name,avatar_url=ctx.author.avatar.url,wait=True)
+            await message.reply("🤓 ☝️", mention_author=False)
             await ctx.delete()
+        else:
+            await ctx.reply('Hello!', mention_author=True)
+    
+    if ctx.content.__contains__('$bo') and not ctx.content.__contains__('`$bo`'):
+        # Sends a random bo angle to wherever `$bo` was sent
+        replies = ['Bo Ang', 'Bo Logo', 'Bo Lok']
+        random_reply = random.choice(replies)
+        content = ctx.content.replace("$bo", random_reply)
+        webhook = await get_or_create_webhook(ctx.channel)
+        await ctx.delete()
+        await webhook.send(content,username=ctx.author.name,avatar_url=ctx.author.avatar.url)
+        # await ctx.channel.send(content=content)
 
-        if ctx.content.__contains__('x.com') and not ctx.content.__contains__('fxtwitter'):
-            webhook = await get_or_create_webhook(ctx.channel)
-            reply = ctx.content.replace("x","fxtwitter")
-            await webhook.send(reply,username=ctx.author.nick,avatar_url=ctx.author.avatar.url)
-            await ctx.delete()
+    if ctx.content.__contains__('twitter.com') and not ctx.content.__contains__('fxtwitter'):
+        webhook = await get_or_create_webhook(ctx.channel)
+        reply = ctx.content.replace("twitter","fxtwitter")
+        await webhook.send(reply,username=ctx.author.name,avatar_url=ctx.author.avatar.url)
+        await ctx.delete()
 
-        if ctx.content.__contains__('instagram.com') and not ctx.content.__contains__('ddinstagram'):
-            webhook = await get_or_create_webhook(ctx.channel)
-            reply = ctx.content.replace("instagram","ddinstagram")
-            await webhook.send(reply,username=ctx.author.name,avatar_url=ctx.author.avatar.url)
-            await ctx.delete()
+    if ctx.content.__contains__('x.com') and not ctx.content.__contains__('fxtwitter'):
+        webhook = await get_or_create_webhook(ctx.channel)
+        reply = ctx.content.replace("x","fxtwitter")
+        await webhook.send(reply,username=ctx.author.nick,avatar_url=ctx.author.avatar.url)
+        await ctx.delete()
+
+    if ctx.content.__contains__('instagram.com') and not ctx.content.__contains__('ddinstagram'):
+        webhook = await get_or_create_webhook(ctx.channel)
+        reply = ctx.content.replace("instagram","ddinstagram")
+        await webhook.send(reply,username=ctx.author.name,avatar_url=ctx.author.avatar.url)
+        await ctx.delete()
 
 bot.run(TOKEN)
