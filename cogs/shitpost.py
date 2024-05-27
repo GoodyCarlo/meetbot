@@ -9,9 +9,9 @@ class Shitpost(commands.Cog):
         self.bot = bot
         self.webhooks_cache = {}
         self.link_replacements = {
-            'twitter.com': 'fxtwitter',
-            'x.com': 'fxtwitter',
-            'instagram.com': 'ddinstagram'
+            'twitter.com': 'fxtwitter.com',
+            'x.com': 'fxtwitter.com',
+            'instagram.com': 'ddinstagram.com'
         }
 
     @commands.Cog.listener()
@@ -21,12 +21,16 @@ class Shitpost(commands.Cog):
             return
         
         content = ctx.content
+        reply = None
         
-        for original, replacement in self.replacements.items():
+        for original, replacement in self.link_replacements.items():
             if original in content and replacement not in content:
                 reply = content.replace(original, replacement)
                 break
-
+        
+        if reply is None:
+            return
+        
         await send_webhook_message(
             bot=self.bot, message=ctx, 
             content=reply, 
