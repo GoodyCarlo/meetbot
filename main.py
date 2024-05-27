@@ -1,12 +1,12 @@
 import discord
-from discord import app_commands, Interaction, Message, utils
+from discord import app_commands, Interaction, Message, utils, Webhook
 from discord.ext import commands
 import os
 from os.path import join, dirname
-from dotenv import load_dotenv
+from dotenv import load_dotenv, find_dotenv
 import random
 
-dotenv_path = join(dirname(__file__), '.env')
+dotenv_path = join(find_dotenv())
 load_dotenv(dotenv_path)
 
 TOKEN = os.environ.get("TOKEN")
@@ -32,8 +32,9 @@ async def get_or_create_webhook(channel):
 
     # Get existing webhooks in the channel
     webhooks = await channel.webhooks()
+    webhook:Webhook
     for webhook in webhooks:
-        if webhook.name == "webhook_replacer":
+        if webhook.name == "webhook_replacer" and webhook.user == bot:
             webhooks_cache[channel.id] = webhook
             return webhook
 
@@ -93,9 +94,10 @@ async def on_message(ctx:Message):
         replies = ['Bo Ang', 'Bo Logo', 'Bo Lok']
         random_reply = random.choice(replies)
         content = ctx.content.replace("$bo", random_reply)
-        
+        webhook = await get_or_create_webhook(ctx.channel)
         await ctx.delete()
-        await ctx.channel.send(content=content)
+        await webhook.send(content,username=ctx.author.name,avatar_url=ctx.author.avatar.url)
+        # await ctx.channel.send(content=content)
 
     if ctx.content.__contains__('twitter.com') and not ctx.content.__contains__('fxtwitter'):
         webhook = await get_or_create_webhook(ctx.channel)
@@ -115,4 +117,4 @@ async def on_message(ctx:Message):
         await webhook.send(reply,username=ctx.author.name,avatar_url=ctx.author.avatar.url)
         await ctx.delete()
 
-bot.run("MTI0MzE5ODcyOTgwMTA0NDA3Mg.GzOFx7.RqoI8aeWkpjJg-oz_q69WhoSrYjKk_9fpYi9oE")
+bot.run(TOKEN)
