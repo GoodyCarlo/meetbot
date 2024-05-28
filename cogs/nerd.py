@@ -15,9 +15,10 @@ class Nerd(commands.Cog):
         
         if ctx.content.startswith('$nerd'):
             if ctx.reference is not None:
-                referenced_message = await ctx.channel.fetch_ctx(ctx.reference.ctx_id)
-                await referenced_message.reply("🤓 ☝️", mention_author=False)
+                referenced_message = await ctx.channel.fetch_message(ctx.reference.message_id)
                 await ctx.delete()
+                await referenced_message.reply("🤓 ☝️", mention_author=False)
+                
             else:
                 await ctx.reply('Nah!', mention_author=True)
 
